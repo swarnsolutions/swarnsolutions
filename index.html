@@ -278,46 +278,46 @@
         <div class="content">
             <div class="left-panel">
                 <h2>Share Your Feedback</h2>
-                <form id="feedbackForm">
+                <form id="feedbackForm" action="https://docs.google.com/forms/d/e/1FAIpQLScb-HEwkZNLYAx96S5VlY2Dbb9E263cywc1qiBA9yrvGmDpxA/formResponse" method="POST" target="hiddenFrame">
                     <div class="form-group">
                         <label for="name">Your Name (Optional)</label>
-                        <input type="text" id="name" name="name" placeholder="What should we call you?">
+                        <input type="text" id="name" name="entry.459671903" placeholder="What should we call you?">
                     </div>
                     
                     <div class="form-group">
                         <label for="email">Email (Optional)</label>
-                        <input type="email" id="email" name="email" placeholder="Email for updates">
+                        <input type="email" id="email" name="entry.345259504" placeholder="Email for updates">
                     </div>
                     
                     <div class="form-group">
                         <label>How would you rate your experience?</label>
                         <div class="rating">
-                            <input type="radio" id="star5" name="rating" value="5">
+                            <input type="radio" id="star5" name="entry.572937683" value="5">
                             <label for="star5">★</label>
-                            <input type="radio" id="star4" name="rating" value="4">
+                            <input type="radio" id="star4" name="entry.572937683" value="4">
                             <label for="star4">★</label>
-                            <input type="radio" id="star3" name="rating" value="3">
+                            <input type="radio" id="star3" name="entry.572937683" value="3">
                             <label for="star3">★</label>
-                            <input type="radio" id="star2" name="rating" value="2">
+                            <input type="radio" id="star2" name="entry.572937683" value="2">
                             <label for="star2">★</label>
-                            <input type="radio" id="star1" name="rating" value="1">
+                            <input type="radio" id="star1" name="entry.572937683" value="1">
                             <label for="star1">★</label>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="item">What did you order?</label>
-                        <input type="text" id="item" name="item" placeholder="e.g., Spicy Chicken Tacos">
+                        <input type="text" id="item" name="entry.1945314961" placeholder="e.g., Spicy Chicken Tacos">
                     </div>
                     
                     <div class="form-group">
                         <label for="feedback">Your Feedback</label>
-                        <textarea id="feedback" name="feedback" placeholder="What did you love? What can we improve?"></textarea>
+                        <textarea id="feedback" name="entry.2067691691" placeholder="What did you love? What can we improve?"></textarea>
                     </div>
                     
                     <div class="form-group">
                         <label for="suggestion">Suggestions for new menu items</label>
-                        <input type="text" id="suggestion" name="suggestion" placeholder="What would you like to see on our menu?">
+                        <input type="text" id="suggestion" name="entry.475037556" placeholder="What would you like to see on our menu?">
                     </div>
                     
                     <button type="submit" class="btn">
@@ -337,7 +337,7 @@
             <div class="right-panel">
                 <div class="qr-code">
                     <h3>Scan to provide feedback</h3>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://example.com/feedback" alt="QR Code">
+                    <img id="qrImage" src="" alt="QR Code">
                     <p>Scan this QR code to access this feedback form anytime</p>
                 </div>
                 
@@ -369,83 +369,35 @@
         </div>
     </div>
 
+    <!-- Hidden iframe for form submission -->
+    <iframe name="hiddenFrame" style="display: none;"></iframe>
+
     <script>
+        // Generate QR code for the current page URL
+        function generateQRCode() {
+            const currentURL = window.location.href;
+            const qrImage = document.getElementById('qrImage');
+            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentURL)}`;
+        }
+        
         document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
+            // Get form values for confirmation message
             const name = document.getElementById('name').value || 'Anonymous';
-            const email = document.getElementById('email').value || 'Not provided';
-            const rating = document.querySelector('input[name="rating"]:checked') ? 
-                          document.querySelector('input[name="rating"]:checked').value : 'Not rated';
-            const item = document.getElementById('item').value || 'Not specified';
-            const feedback = document.getElementById('feedback').value;
-            const suggestion = document.getElementById('suggestion').value || 'None';
+            const rating = document.querySelector('input[name="entry.572937683"]:checked') ? 
+                          document.querySelector('input[name="entry.572937683"]:checked').value : 'Not rated';
             
-            // In a real implementation, this would submit to Google Forms
-            // For this demo, we'll simulate both success and error cases randomly
-            const isSuccess = Math.random() > 0.3; // 70% success rate for demo
-            
-            if (isSuccess) {
-                // Show success message
+            // Show success message after a short delay to allow form submission
+            setTimeout(function() {
                 document.getElementById('successMessage').style.display = 'block';
                 document.getElementById('errorMessage').style.display = 'none';
                 
-                // Reset form
+                // Reset form after successful submission
                 setTimeout(() => {
                     document.getElementById('feedbackForm').reset();
                     document.getElementById('successMessage').style.display = 'none';
                 }, 3000);
-            } else {
-                // Show error message
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('successMessage').style.display = 'none';
-                
-                // Hide error after 3 seconds
-                setTimeout(() => {
-                    document.getElementById('errorMessage').style.display = 'none';
-                }, 3000);
-            }
-            
-            // Log the feedback data (in a real implementation, this would go to Google Forms)
-            console.log('Feedback received:', {name, email, rating, item, feedback, suggestion});
-            
-            // Here's how you would actually submit to Google Forms:
-            
-            // Replace with your Google Form URL
-            const googleFormURL = 'https://docs.google.com/forms/d/e/1FAIpQLScb-HEwkZNLYAx96S5VlY2Dbb9E263cywc1qiBA9yrvGmDpxA/formResponse';
-            
-            // Create a function to submit to Google Forms
-            function submitToGoogleForms(data) {
-                const formData = new FormData();
-                
-                // Map your fields to Google Form field IDs
-                formData.append('entry.459671903', data.name); // Replace with your field IDs
-                formData.append('entry.345259504', data.email);
-                formData.append('entry.572937683', data.rating);
-                formData.append('entry.1945314961', data.item);
-                formData.append('entry.2067691691', data.feedback);
-                formData.append('entry.475037556', data.suggestion);
-                
-                fetch(googleFormURL, {
-                    method: 'POST',
-                    body: formData,
-                    mode: 'no-cors'
-                });
-            }
-            
-            // Call the function with your data
-            submitToGoogleForms({name, email, rating, item, feedback, suggestion});
-            
+            }, 500);
         });
-        
-        // Generate QR code (in a real implementation, this would point to your form URL)
-        function generateQRCode() {
-            // This would be your form's public URL
-            const formURL = 'https://swarnsolutions.github.io/swarnsolutions/';
-            document.querySelector('.qr-code img').src = 
-                `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(formURL)}`;
-        }
         
         // Initialize when page loads
         window.addEventListener('load', function() {
@@ -453,5 +405,4 @@
         });
     </script>
 </body>
-
 </html>
