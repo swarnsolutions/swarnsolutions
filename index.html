@@ -396,9 +396,9 @@
     <script>
         // Generate QR code for the current page URL
         function generateQRCode() {
-            const currentURL = window.location.href;
+            const currentURL = "https://swarnsolutions.github.io/swarnsolutions/";
             const qrImage = document.getElementById('qrImage');
-            qrImage.src = `https://swarnsolutions.github.io/swarnsolutions/`;
+            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentURL)}`;
         }
         
         document.getElementById('feedbackForm').addEventListener('submit', function(e) {
@@ -489,3 +489,4 @@
     </script>
 </body>
 </html>
+
