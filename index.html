@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasty Bites - Customer Feedback</title>
+    <title>Mom's Invention - Customer Feedback</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -121,6 +121,11 @@
             color: var(--dark);
         }
         
+        .required:after {
+            content: " *";
+            color: var(--error);
+        }
+        
         input, select, textarea {
             width: 100%;
             padding: 14px;
@@ -136,6 +141,10 @@
             box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
         }
         
+        input:invalid, textarea:invalid {
+            border-color: #ffcccc;
+        }
+        
         textarea {
             min-height: 120px;
             resize: vertical;
@@ -143,6 +152,8 @@
         
         .rating {
             display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
             gap: 10px;
             margin: 10px 0 20px;
         }
@@ -190,6 +201,13 @@
             background: #e55a2b;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         
         .btn i {
@@ -270,7 +288,7 @@
         <div class="header">
             <div class="logo">
                 <i class="fas fa-utensils"></i>
-                <span>Tasty Bites Street Food</span>
+                <span>Mom's Invention</span>
             </div>
             <div class="tagline">Help us serve you better!</div>
         </div>
@@ -278,19 +296,20 @@
         <div class="content">
             <div class="left-panel">
                 <h2>Share Your Feedback</h2>
-                <form id="feedbackForm" action="https://docs.google.com/forms/d/e/1FAIpQLScb-HEwkZNLYAx96S5VlY2Dbb9E263cywc1qiBA9yrvGmDpxA/formResponse" method="POST" target="hiddenFrame">
+                <form id="feedbackForm">
                     <div class="form-group">
-                        <label for="name">Your Name (Optional)</label>
-                        <input type="text" id="name" name="entry.459671903" placeholder="What should we call you?">
+                        <label for="name" class="required">Your Name</label>
+                        <input type="text" id="name" name="entry.459671903" placeholder="What should we call you?" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">Email (Optional)</label>
-                        <input type="email" id="email" name="entry.345259504" placeholder="Email for updates">
+                        <label for="phone" class="required">Phone Number</label>
+                        <input type="tel" id="phone" name="entry.345259504" placeholder="Your phone number" pattern="[0-9]{10}" required>
+                        <small>Format: 10-digit number without spaces or dashes</small>
                     </div>
                     
                     <div class="form-group">
-                        <label>How would you rate your experience?</label>
+                        <label class="required">How would you rate your experience?</label>
                         <div class="rating">
                             <input type="radio" id="star5" name="entry.572937683" value="5">
                             <label for="star5">★</label>
@@ -300,9 +319,10 @@
                             <label for="star3">★</label>
                             <input type="radio" id="star2" name="entry.572937683" value="2">
                             <label for="star2">★</label>
-                            <input type="radio" id="star1" name="entry.572937683" value="1">
+                            <input type="radio" id="star1" name="entry.572937683" value="1" required>
                             <label for="star1">★</label>
                         </div>
+                        <small>1 star (Poor) to 5 stars (Excellent)</small>
                     </div>
                     
                     <div class="form-group">
@@ -329,7 +349,7 @@
                     </div>
                     
                     <div id="errorMessage" class="error-message">
-                        <i class="fas fa-exclamation-circle"></i> There was an error submitting your feedback. Please try again.
+                        <i class="fas fa-exclamation-circle"></i> <span id="errorText">There was an error submitting your feedback. Please try again.</span>
                     </div>
                 </form>
             </div>
@@ -365,7 +385,7 @@
         </div>
         
         <div class="footer">
-            <p>© 2023 Tasty Bites Street Food | Feedback System</p>
+            <p>Feedback System</p>
             <p>All feedback is appreciated and helps us serve you better!</p>
         </div>
     </div>
@@ -378,26 +398,88 @@
         function generateQRCode() {
             const currentURL = window.location.href;
             const qrImage = document.getElementById('qrImage');
-            qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(currentURL)}`;
+            qrImage.src = `https://swarnsolutions.github.io/swarnsolutions/`;
         }
         
         document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-            // Get form values for confirmation message
-            const name = document.getElementById('name').value || 'Anonymous';
-            const rating = document.querySelector('input[name="entry.572937683"]:checked') ? 
-                          document.querySelector('input[name="entry.572937683"]:checked').value : 'Not rated';
+            e.preventDefault();
             
-            // Show success message after a short delay to allow form submission
-            setTimeout(function() {
+            // Validate form
+            const name = document.getElementById('name');
+            const phone = document.getElementById('phone');
+            const rating = document.querySelector('input[name="entry.572937683"]:checked');
+            
+            let isValid = true;
+            let errorMessage = "";
+            
+            if (!name.value.trim()) {
+                isValid = false;
+                errorMessage = "Please enter your name";
+                name.focus();
+            } else if (!phone.value.trim() || !phone.validity.valid) {
+                isValid = false;
+                errorMessage = "Please enter a valid 10-digit phone number";
+                phone.focus();
+            } else if (!rating) {
+                isValid = false;
+                errorMessage = "Please rate your experience";
+            }
+            
+            if (!isValid) {
+                document.getElementById('errorText').textContent = errorMessage;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                
+                setTimeout(() => {
+                    document.getElementById('errorMessage').style.display = 'none';
+                }, 5000);
+                return;
+            }
+            
+            // Disable submit button to prevent multiple submissions
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            // Create form data for submission
+            const formData = new FormData();
+            formData.append('entry.459671903', name.value);
+            formData.append('entry.345259504', phone.value);
+            formData.append('entry.572937683', rating.value);
+            formData.append('entry.1945314961', document.getElementById('item').value || 'Not specified');
+            formData.append('entry.2067691691', document.getElementById('feedback').value || 'No feedback provided');
+            formData.append('entry.475037556', document.getElementById('suggestion').value || 'No suggestions');
+            
+            // Submit to Google Forms
+            fetch('https://docs.google.com/forms/d/e/1FAIpQLScb-HEwkZNLYAx96S5VlY2Dbb9E263cywc1qiBA9yrvGmDpxA/formResponse', {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                // // Show success message
                 document.getElementById('successMessage').style.display = 'block';
                 document.getElementById('errorMessage').style.display = 'none';
                 
-                // Reset form after successful submission
+                // Redirect to thank you page after a delay
                 setTimeout(() => {
-                    document.getElementById('feedbackForm').reset();
-                    document.getElementById('successMessage').style.display = 'none';
-                }, 3000);
-            }, 500);
+                    window.location.href = 'thank-you.html';
+                }, 2000);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                document.getElementById('errorText').textContent = 'There was an error submitting your feedback. Please try again.';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Feedback';
+                
+                setTimeout(() => {
+                    document.getElementById('errorMessage').style.display = 'none';
+                }, 5000);
+            });
         });
         
         // Initialize when page loads
@@ -407,4 +489,3 @@
     </script>
 </body>
 </html>
-
